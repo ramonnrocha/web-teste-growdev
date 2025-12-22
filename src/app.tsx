@@ -12,16 +12,19 @@ export function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          {/* Rota pública */}
           <Route path="/login" element={<Login />} />
 
-          {/* Rotas protegidas */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/room/:roomId" element={<RoomNew />} />
+          <Route path="/" element={<ProtectedRoute />}>
+            {/* Adicione uma página inicial ou redirecione para uma sala específica */}
+            <Route
+              index
+              element={<div>Selecione ou crie uma sala na lateral</div>}
+            />
+            <Route path="room/:roomId" element={<RoomNew />} />
           </Route>
 
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Se nada bater, vai para o login em vez de voltar para a rota protegida */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
