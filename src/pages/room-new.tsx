@@ -8,7 +8,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 // Hooks HTTP
 import { useRoomInteractions } from "../http/use-room-interactions";
@@ -90,6 +90,10 @@ export function RoomNew() {
     localStorage.clear();
     navigate("/login");
   };
+
+  if (localStorage.getItem("token")) {
+    return <Navigate to="/login" />;
+  }
 
   return (
     <main className="flex h-screen bg-[#0E0E10] text-zinc-100 overflow-hidden font-sans">

@@ -19,7 +19,7 @@ export function Login() {
       localStorage.setItem("roomId", roomId);
 
       // Token já é armazenado automaticamente no hook via onSuccess
-      navigate(`/rooms`);
+      navigate(`/`);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Falha ao realizar login";
