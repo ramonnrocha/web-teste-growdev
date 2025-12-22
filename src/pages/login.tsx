@@ -16,8 +16,10 @@ export function Login() {
     try {
       const { roomId } = await login({ email });
 
+      localStorage.setItem("roomId", roomId);
+
       // Token já é armazenado automaticamente no hook via onSuccess
-      navigate(`/room/${roomId}`);
+      navigate(`/rooms`);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Falha ao realizar login";

@@ -6,5 +6,9 @@ export function ProtectedRoute() {
     return <Navigate replace to="/login" />;
   }
 
+  if (!localStorage.getItem("roomId")) {
+    return <Navigate replace to="/rooms" />;
+  }
+
   return <Outlet />;
 }

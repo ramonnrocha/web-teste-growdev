@@ -15,12 +15,7 @@ export function App() {
           <Route path="/login" element={<Login />} />
 
           <Route path="/" element={<ProtectedRoute />}>
-            {/* Adicione uma página inicial ou redirecione para uma sala específica */}
-            <Route
-              index
-              element={<div>Selecione ou crie uma sala na lateral</div>}
-            />
-            <Route path="room/:roomId" element={<RoomNew />} />
+            <Route path="rooms" element={<RoomNew />} />
           </Route>
 
           {/* Se nada bater, vai para o login em vez de voltar para a rota protegida */}

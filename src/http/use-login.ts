@@ -35,8 +35,9 @@ export function useLogin() {
     },
 
     onSuccess: (data) => {
-      // Armazena o token no localStorage após login bem-sucedido
+      // Armazena o token e o userId no localStorage após login bem-sucedido
       localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+      localStorage.setItem("userId", data.userId);
     },
   });
 }
