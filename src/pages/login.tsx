@@ -1,25 +1,36 @@
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useLogin } from "@/http/use-login";
 
 export function Login() {
   const navigate = useNavigate();
-
   const [email, setEmail] = useState("");
+  const { mutateAsync: login, isPending } = useLogin();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim() && email.includes("@")) {
-      navigate("/room-new/1");
+
+    if (!email.trim()) return;
+
+    try {
+      const { roomId } = await login({ email });
+
+      // Token já é armazenado automaticamente no hook via onSuccess
+      navigate(`/room/${roomId}`);
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Falha ao realizar login";
+      alert(errorMessage);
     }
   };
 
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center p-4">
+    <main className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
-        <div className="bg-card border border-border rounded-2xl shadow-lg p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">
+        <div className="rounded-2xl border border-border bg-card p-8 shadow-lg">
+          <div className="mb-8 text-center">
+            <h1 className="mb-2 font-bold text-3xl text-foreground">
               Bem-vindo
             </h1>
             <p className="text-muted-foreground">
@@ -27,27 +38,27 @@ export function Login() {
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form className="space-y-6" onSubmit={handleLogin}>
             <div>
               <label
+                className="mb-2 block font-medium text-foreground text-sm"
                 htmlFor="email"
-                className="block text-sm font-medium text-foreground mb-2"
               >
                 Email
               </label>
               <input
+                className="w-full rounded-lg border border-input bg-background px-4 py-3 text-foreground transition-all placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 id="email"
-                type="email"
-                value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="seu@email.com"
-                className="w-full px-4 py-3 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground placeholder:text-muted-foreground transition-all"
                 required
+                type="email"
+                value={email}
               />
             </div>
 
-            <Button type="submit" className="w-full">
-              Entrar
+            <Button className="w-full" disabled={isPending} type="submit">
+              {isPending ? "Entrando..." : "Entrar"}
             </Button>
           </form>
         </div>

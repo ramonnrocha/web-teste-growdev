@@ -1,6 +1,11 @@
 import { useEffect, useRef } from "react";
 import { useState } from "react";
 import { Send, Plus, Menu, X } from "lucide-react";
+import { Navigate, useParams } from "react-router-dom";
+
+type RoomParams = {
+  roomId: string;
+};
 
 export function RoomNew() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -12,6 +17,12 @@ export function RoomNew() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const params = useParams<RoomParams>();
+
+  if (!params.roomId) {
+    return <Navigate replace to="/login" />;
+  }
 
   const mockConversations = [
     "Como criar um app React?",
