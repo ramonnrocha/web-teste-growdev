@@ -8,7 +8,7 @@ import {
   Send,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useCreateInteraction } from "../http/use-create-interaction";
 import { useCreateRoom } from "../http/use-create-room";
 // Hooks HTTP
