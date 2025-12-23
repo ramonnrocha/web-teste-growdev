@@ -1,4 +1,4 @@
-export type CreateIntereactionResponse= {
+export type CreateIntereactionResponse = {
   id: string;
   prompt: string;
   response: string | null;

@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { API_URL } from "./api-url";
 
 // Tipagens baseadas no seu backend
 interface Interaction {
@@ -15,7 +16,7 @@ export function useCreateInteraction(roomId: string) {
   return useMutation({
     mutationFn: async ({ prompt }: { prompt: string }) => {
       const response = await fetch(
-        `http://localhost:3333/rooms/${roomId}/interactions`,
+        `${API_URL}/rooms/${roomId}/interactions`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -29,7 +30,9 @@ export function useCreateInteraction(roomId: string) {
 
     onMutate: async ({ prompt }) => {
       // Cancela refetchs para não sobrescrever o optimistic update
-      await queryClient.cancelQueries({ queryKey: ["get-interactions", roomId] });
+      await queryClient.cancelQueries({
+        queryKey: ["get-interactions", roomId],
+      });
 
       const previousInteractions = queryClient.getQueryData<Interaction[]>([
         "get-interactions",
@@ -56,15 +59,14 @@ export function useCreateInteraction(roomId: string) {
     onSuccess: (data, _variables, context) => {
       queryClient.setQueryData<Interaction[]>(
         ["get-interactions", roomId],
-        (old) => {
-          return old?.map((item) =>
-            item.id === context.newInteraction.id 
-              ? { ...data, isGenerating: false } 
+        (old) =>
+          old?.map((item) =>
+            item.id === context.newInteraction.id
+              ? { ...data, isGenerating: false }
               : item
-          );
-        }
+          )
       );
-      
+
       // Opcional: Invalida a query das "rooms" para atualizar a descrição na lateral
       queryClient.invalidateQueries({ queryKey: ["get-rooms"] });
     },

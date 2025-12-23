@@ -1,20 +1,19 @@
-import { useEffect, useRef, useState } from "react";
 import {
-  Send,
-  Plus,
+  AlertCircle,
+  Loader2,
+  LogOut,
   Menu,
   MessageSquare,
-  LogOut,
-  Loader2,
-  AlertCircle,
+  Plus,
+  Send,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-
+import { useCreateInteraction } from "../http/use-create-interaction";
+import { useCreateRoom } from "../http/use-create-room";
 // Hooks HTTP
 import { useRoomInteractions } from "../http/use-room-interactions";
-import { useCreateInteraction } from "../http/use-create-interaction";
 import { useRooms } from "../http/use-rooms";
-import { useCreateRoom } from "../http/use-create-room";
 
 export function RoomNew() {
   const [activeRoomId, setActiveRoomId] = useState<string | null>(() =>
@@ -63,7 +62,7 @@ export function RoomNew() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || !activeRoomId || isSending) return;
+    if (!(input.trim() && activeRoomId) || isSending) return;
 
     const userPrompt = input.trim();
     setInput("");
@@ -91,96 +90,92 @@ export function RoomNew() {
     navigate("/login");
   };
 
-  if (localStorage.getItem("token")) {
-    return <Navigate to="/login" />;
-  }
-
   return (
-    <main className="flex h-screen bg-[#0E0E10] text-zinc-100 overflow-hidden font-sans">
+    <main className="flex h-screen overflow-hidden bg-[#0E0E10] font-sans text-zinc-100">
       {/* SIDEBAR */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#171719] border-r border-zinc-800 transition-transform lg:relative lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 border-zinc-800 border-r bg-[#171719] transition-transform lg:relative lg:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex flex-col h-full p-4">
+        <div className="flex h-full flex-col p-4">
           <button
-            onClick={handleStartNewChat}
+            className="group mb-6 flex items-center gap-3 rounded-xl bg-white px-4 py-3 text-black shadow-lg transition-all hover:bg-zinc-200 disabled:opacity-50"
             disabled={isCreatingRoom}
-            className="flex items-center gap-3 px-4 py-3 bg-white text-black hover:bg-zinc-200 disabled:opacity-50 rounded-xl transition-all mb-6 group shadow-lg"
+            onClick={handleStartNewChat}
           >
             {isCreatingRoom ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Plus className="w-4 h-4" />
+              <Plus className="h-4 w-4" />
             )}
-            <span className="text-sm font-bold">Nova conversa</span>
+            <span className="font-bold text-sm">Nova conversa</span>
           </button>
 
-          <nav className="flex-1 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
-            <div className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest px-3 mb-3">
+          <nav className="custom-scrollbar flex-1 space-y-1 overflow-y-auto pr-2">
+            <div className="mb-3 px-3 font-bold text-[11px] text-zinc-500 uppercase tracking-widest">
               Recentes
             </div>
             {rooms.map((room) => (
               <button
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-all ${
+                  activeRoomId === room.id
+                    ? "border border-zinc-700 bg-zinc-800 text-white"
+                    : "text-zinc-400 hover:bg-zinc-800/40"
+                }`}
                 key={room.id}
                 onClick={() => {
                   setActiveRoomId(room.id);
                   setSidebarOpen(false);
                   setErrorMessage(null);
                 }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-all ${
-                  activeRoomId === room.id
-                    ? "bg-zinc-800 text-white border border-zinc-700"
-                    : "text-zinc-400 hover:bg-zinc-800/40"
-                }`}
               >
                 <MessageSquare
-                  className={`w-4 h-4 ${
+                  className={`h-4 w-4 ${
                     activeRoomId === room.id ? "text-blue-400" : ""
                   }`}
                 />
-                <span className="truncate flex-1">{room.description}</span>
+                <span className="flex-1 truncate">{room.description}</span>
               </button>
             ))}
           </nav>
 
           <button
+            className="mt-4 flex items-center gap-3 rounded-lg px-3 py-3 font-medium text-sm text-zinc-500 transition-all hover:bg-red-400/10 hover:text-red-400"
             onClick={handleLogout}
-            className="mt-4 flex items-center gap-3 px-3 py-3 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-red-400/10 transition-all text-sm font-medium"
           >
-            <LogOut className="w-4 h-4" /> Sair
+            <LogOut className="h-4 w-4" /> Sair
           </button>
         </div>
       </aside>
 
       {/* CHAT AREA */}
-      <section className="flex-1 flex flex-col relative h-full">
-        <header className="flex items-center px-4 py-3 border-b border-zinc-800 lg:hidden bg-[#0E0E10]">
+      <section className="relative flex h-full flex-1 flex-col">
+        <header className="flex items-center border-zinc-800 border-b bg-[#0E0E10] px-4 py-3 lg:hidden">
           <button
-            onClick={() => setSidebarOpen(true)}
             className="p-2 text-zinc-400"
+            onClick={() => setSidebarOpen(true)}
           >
             <Menu />
           </button>
-          <span className="ml-4 text-sm font-medium truncate">
+          <span className="ml-4 truncate font-medium text-sm">
             {rooms.find((r) => r.id === activeRoomId)?.description ||
               "Nova conversa"}
           </span>
         </header>
 
         <div className="flex-1 overflow-y-auto p-4 lg:p-8">
-          <div className="max-w-3xl mx-auto">
+          <div className="mx-auto max-w-3xl">
             {isLoadingMessages && activeRoomId ? (
-              <div className="h-full flex items-center justify-center py-20">
+              <div className="flex h-full items-center justify-center py-20">
                 <Loader2 className="animate-spin text-zinc-700" />
               </div>
             ) : interactions.length === 0 ? (
-              <div className="h-[60vh] flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 bg-zinc-800/50 rounded-2xl flex items-center justify-center mb-6 border border-zinc-700/30">
+              <div className="flex h-[60vh] flex-col items-center justify-center text-center">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-zinc-700/30 bg-zinc-800/50">
                   <Plus className="text-zinc-500" />
                 </div>
-                <h2 className="text-2xl font-semibold mb-2">
+                <h2 className="mb-2 font-semibold text-2xl">
                   Como posso ajudar hoje?
                 </h2>
               </div>
@@ -188,25 +183,25 @@ export function RoomNew() {
               <div className="space-y-8 pb-10">
                 {interactions.map((inter) => (
                   <div
+                    className="fade-in slide-in-from-bottom-2 flex animate-in flex-col gap-6"
                     key={inter.id}
-                    className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-2"
                   >
                     <div className="flex justify-end">
-                      <div className="max-w-[85%] bg-[#2F2F32] rounded-2xl px-5 py-3 text-[15px]">
+                      <div className="max-w-[85%] rounded-2xl bg-[#2F2F32] px-5 py-3 text-[15px]">
                         {inter.prompt}
                       </div>
                     </div>
                     <div className="flex justify-start gap-4">
-                      <div className="w-9 h-9 rounded-full bg-linear-to-tr from-blue-600 to-purple-600 shrink-0 flex items-center justify-center text-[10px] font-bold">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-tr from-blue-600 to-purple-600 font-bold text-[10px]">
                         AI
                       </div>
-                      <div className="flex-1 min-w-0 pt-1">
+                      <div className="min-w-0 flex-1 pt-1">
                         {inter.response === null ? (
                           <div className="flex gap-1 py-4">
-                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" />
+                            <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-500" />
                           </div>
                         ) : (
-                          <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap text-[15px]">
+                          <div className="whitespace-pre-wrap text-[15px] text-zinc-300 leading-relaxed">
                             {inter.response}
                           </div>
                         )}
@@ -221,20 +216,19 @@ export function RoomNew() {
         </div>
 
         {/* INPUT AREA */}
-        <div className="p-4 bg-linear-to-t from-[#0E0E10] to-transparent">
+        <div className="bg-linear-to-t from-[#0E0E10] to-transparent p-4">
           {errorMessage && (
-            <div className="max-w-3xl mx-auto mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-400 text-sm animate-in fade-in slide-in-from-top-1">
-              <AlertCircle className="w-4 h-4 shrink-0" /> {errorMessage}
+            <div className="fade-in slide-in-from-top-1 mx-auto mb-4 flex max-w-3xl animate-in items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-red-400 text-sm">
+              <AlertCircle className="h-4 w-4 shrink-0" /> {errorMessage}
             </div>
           )}
 
           <form
+            className="group relative mx-auto max-w-3xl"
             onSubmit={handleSendMessage}
-            className="max-w-3xl mx-auto relative group"
           >
             <textarea
-              ref={textAreaRef}
-              value={input}
+              className="min-h-[60px] w-full resize-none rounded-2xl border border-zinc-800/50 bg-[#1E1E21] py-4 pr-14 pl-5 text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20"
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
@@ -243,18 +237,19 @@ export function RoomNew() {
                 }
               }}
               placeholder="Pergunte ao Gemini..."
-              className="w-full bg-[#1E1E21] border border-zinc-800/50 rounded-2xl pl-5 pr-14 py-4 focus:ring-2 focus:ring-blue-500/20 outline-none text-zinc-100 resize-none min-h-[60px]"
+              ref={textAreaRef}
               rows={1}
+              value={input}
             />
             <button
+              className="absolute right-3 bottom-3 rounded-xl bg-zinc-100 p-2.5 text-black transition-all hover:bg-white disabled:opacity-10"
+              disabled={!(input.trim() && activeRoomId) || isSending}
               type="submit"
-              disabled={!input.trim() || !activeRoomId || isSending}
-              className="absolute right-3 bottom-3 p-2.5 bg-zinc-100 text-black rounded-xl hover:bg-white disabled:opacity-10 transition-all"
             >
               {isSending ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                <Send className="w-5 h-5" />
+                <Send className="h-5 w-5" />
               )}
             </button>
           </form>
@@ -263,7 +258,7 @@ export function RoomNew() {
 
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

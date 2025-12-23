@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { CreateRoomResponse } from "./types/create-room-response";
+import { API_URL } from "./api-url";
 
 export function useCreateRoom() {
   const queryClient = useQueryClient();
@@ -12,12 +13,15 @@ export function useCreateRoom() {
         throw new Error("Usuário não encontrado");
       }
 
-      const response = await fetch(`http://localhost:3333/rooms/${userId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${API_URL}/rooms/${userId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       const result: CreateRoomResponse = await response.json();
 
