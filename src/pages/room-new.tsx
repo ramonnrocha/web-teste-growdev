@@ -8,7 +8,7 @@ import {
   Send,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useCreateInteraction } from "../http/use-create-interaction";
 import { useCreateRoom } from "../http/use-create-room";
 // Hooks HTTP
@@ -89,6 +89,10 @@ export function RoomNew() {
     localStorage.clear();
     navigate("/login");
   };
+
+  if (!localStorage.getItem("token")) {
+    return <Navigate to="/login" />;
+  }
 
   return (
     <main className="flex h-screen overflow-hidden bg-[#0E0E10] font-sans text-zinc-100">

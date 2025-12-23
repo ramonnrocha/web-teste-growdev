@@ -11,11 +11,10 @@ export function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route element={<Login />} path="/login" />
+          <Route element={<Login />} path="/login" index />
 
           <Route element={<RoomNew />} path="/" />
 
-          {/* Se nada bater, vai para o login em vez de voltar para a rota protegida */}
           <Route element={<Navigate replace to="/login" />} path="*" />
         </Routes>
       </BrowserRouter>
