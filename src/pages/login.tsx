@@ -17,7 +17,7 @@ export function Login() {
       const { roomId } = await login({ email });
 
       localStorage.setItem("roomId", roomId);
-
+      console.log("roomId", roomId);
       // Token já é armazenado automaticamente no hook via onSuccess
       navigate("/");
     } catch (err) {
