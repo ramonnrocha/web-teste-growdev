@@ -70,6 +70,11 @@ npm run dev
 
 A aplicação estará disponível em `http://localhost:5173`
 
+### Configuração 
+ - No Arquivo `api-url.ts` você pode escolher a URL do back-end 
+   `http://localhost:3333` -> URL DESENVOLVIMENTO
+   `https://api-teste-growdev.onrender.com` -> URL PRODUÇÃO
+
 ## 📜 Scripts Disponíveis
 
 - `npm run dev` - Inicia o servidor de desenvolvimento
